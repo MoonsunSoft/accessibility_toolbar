@@ -1,5 +1,3 @@
-'use strict';
-
 function MicAccessTool(init) {
 
 	this.init = init || {
@@ -95,12 +93,7 @@ MicAccessTool.prototype.checkLanguageBox = function() {
 MicAccessTool.prototype.buildToolBox = function() {
 
 	var obj = this.currentLanguage || this.locale.en;
-	var htmlToolBox = '@@include("../htmlmin/toolbox.html")';
-	var allCss = '@@include("../css/all.min.css")';
-
-	var styleTag = document.createElement('style');
-	styleTag.textContent = allCss;
-	document.head.appendChild(styleTag);
+	var htmlToolBox = '@@include("../dist/toolbox.min.html")';
 
 	var createToolBox = document.createElement('div');
 	createToolBox.id = 'mic-init-access-tool';
@@ -426,4 +419,10 @@ MicAccessTool.prototype.initialApp = function() {
 // INITIALIZATION APP
 window.onload = function() {	
   window.micAccessTool = new MicAccessTool();
+
+  window.micAccessTool = new MicAccessTool({
+	forceLang: "ru-RU",
+	link: "https://acctoolbar.ml",
+	contact: "mailto:mickidum@gmail.com",
+  });	
 };

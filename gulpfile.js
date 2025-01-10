@@ -1,111 +1,99 @@
-var gulp           = require('gulp'),
-		gutil          = require('gulp-util' ),
-		gulpSass           = require('gulp-sass'),
-		browserSync    = require('browser-sync'),
-		concat         = require('gulp-concat'),
-		uglify         = require('gulp-uglify'),
-		cleanCSS       = require('gulp-clean-css'),
-		rename         = require('gulp-rename'),
-		cache          = require('gulp-cache'),
-		autoprefixer   = require('gulp-autoprefixer'),
-		notify         = require("gulp-notify"),
-		fileinclude 	 = require('gulp-file-include'),
-		htmlmin 	 		 = require('gulp-htmlmin'),
-		rimraf         = require("rimraf");
+const { src, dest, series, parallel, watch } = require("gulp");
+const sass = require("gulp-sass")(require("sass"));
+const browserSync = require("browser-sync");
+const htmlmin = require("gulp-htmlmin");
+const fileinclude = require("gulp-file-include");
+const rename = require("gulp-rename");
+const uglify = require("gulp-uglify");
+const rimraf = require("gulp-rimraf");
+
+// var util = import("gulp-util"),
+//   concat = import("gulp-concat"),
+//   cleanCSS = import("gulp-clean-css"),
+//   cache = import("gulp-cache"),
+//   autoprefixer = import("gulp-autoprefixer"),
+//   notify = import("gulp-notify"),
+//   fileinclude = import("gulp-file-include"),
 
 function minifyHtml(cb) {
-  gulp.src('app/htmlparts/**/*.html')
-  .pipe(htmlmin({collapseWhitespace: true}))
-  .pipe(gulp.dest('app/htmlmin'))
-  setTimeout(() => cb(), 100);
+  src("src/**/*.html")
+    .pipe(htmlmin({ collapseWhitespace: true }))
+    .pipe(rename({ suffix: ".min", prefix: "" }))
+    .pipe(dest("dist"));
+  cb();
 }
 
 function commonJs(cb) {
-	gulp.src([
-	'app/js/**/*.js',
-	])
-	.pipe(fileinclude({
-      prefix: '@@',
-      basepath: '@file'
-   }))
-	.pipe(rename({suffix: '.min', prefix : ''}))
-	.pipe(uglify())
-	.pipe(gulp.dest('app/minjs'))
-	.pipe(browserSync.stream());
-	cb();
+  src(["src/**/*.js"])
+    .pipe(
+      fileinclude({
+        prefix: "@@",
+        basepath: "@file",
+      })
+    )
+    .pipe(rename({ suffix: ".min", prefix: "" }))
+    // .pipe(uglify())
+    .pipe(dest("dist"))
+    .pipe(browserSync.stream());
+  cb();
+}
+function buildStyles() {
+  return src("src/**/*.scss")
+    .pipe(sass().on("error", sass.logError))
+    .pipe(dest("dist"));
 }
 
 function browser(cb) {
-	browserSync({
-		server: {
-			baseDir: 'app'
-		},
-		open: false,
-		notify: false,
-	});
-	cb();
+  browserSync({
+    server: {
+      baseDir: "dist",
+    },
+    open: false,
+    notify: false,
+  });
+  cb();
 }
 
 function code(cb) {
-	gulp.src('app/*.html')
-	.pipe(browserSync.stream());
-	cb();
+  src("app/*.html").pipe(browserSync.stream());
+  cb();
 }
 
-function sass(cb) {
-	gulp.src('app/scss/**/*.scss')
-	.pipe(gulpSass({
-		outputStyle: 'expand'}).on("error", notify.onError()))
-	.pipe(rename({suffix: '.min', prefix : ''}))
-	.pipe(autoprefixer(['last 2 versions']))
-	.pipe(cleanCSS()) // comment on debug
-	.pipe(gulp.dest('app/css'))
-	setTimeout(() => cb(), 100);
-	
-}
+// function sass(cb) {
+//   gulp
+//     .src("app/scss/**/*.scss")
+//     .pipe(
+//       gulpSass({
+//         outputStyle: "expand",
+//       }).on("error", notify.onError())
+//     )
+//     .pipe(rename({ suffix: ".min", prefix: "" }))
+//     .pipe(autoprefixer(["last 2 versions"]))
+//     .pipe(cleanCSS()) // comment on debug
+//     .pipe(gulp.dest("app/css"));
+//   setTimeout(() => cb(), 100);
+// }
 
 function files(cb) {
-	setTimeout(() => {
-		gulp.src([
-		'app/minjs/common.min.js'
-		])
-		.pipe(rename('acctoolbar.min.js'))
-		.pipe(gulp.dest('acctoolbar'));
-		gulp.src([
-			'app/cursors/**/*',
-			]).pipe(gulp.dest('acctoolbar/cursors'));
-		cb();
-	}, 500);
+//   src(["dist/common.min.js"])
+//   	.pipe(rename("acctoolbar.min.js"))
+//   	.pipe(dest("dist"));
+  src(["src/cursors/**/*"]).pipe(dest("dist/cursors"));
+  cb();
 }
 
-function remDist(cb) {
-	rimraf('acctoolbar', cb);
+function clean(cb) {
+//   src("dist/**").pipe(rimraf());
+  cb();
 }
 
-function clearCache (cb) { 
-	cache.clearAll();
-	cb(); 
+function myWatch(cb) {
+  watch("src/**/*.scss", series(buildStyles));
+  watch("src/**/*.html", series(minifyHtml, commonJs));
+  watch("src/**/*.js", parallel(commonJs));
+  cb();
 }
 
-function watch(cb) {
-	gulp.watch('app/scss/**/*.scss', gulp.series(sass, commonJs));
-	gulp.watch('app/htmlparts/**/*.html', gulp.series(minifyHtml, commonJs));
-	gulp.watch('app/js/**/*.js', gulp.parallel(commonJs));
-	gulp.watch('app/*.html', gulp.parallel(code));
-	cb();
-}
-
-// exports.build = gulp.series(remDist, minifyHtml, sass, commonJs, files);
-exports.build = gulp.series(remDist, minifyHtml, sass, commonJs, files);
-
-exports.clearcache = gulp.parallel(clearCache);
-
-exports.rem = gulp.parallel(remDist);
-exports.buildhtml = gulp.parallel(minifyHtml);
-exports.buildcss = gulp.parallel(sass);
-exports.buildjs = gulp.parallel(commonJs);
-exports.buildfiles = gulp.parallel(files);
-
-exports.default = gulp.parallel(watch, browser);
-// exports.build = gulp.parallel(buildall);
-
+exports.build = series(minifyHtml, buildStyles, commonJs, files);
+exports.clean = series(clean);
+exports.default = parallel(myWatch, browser);
