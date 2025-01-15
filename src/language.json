@@ -101,6 +101,40 @@
       "btn_zoom_in": "zoom<br>screen"
     }
   },
+  "fa": {
+    "btn_open": "accessibility menu",
+    "btn_close": "بستن",
+    "keyboard_root": "keyboard navigation",
+    "disable_animattions": "block animations",
+    "access_declaration": "accessibility statement",
+    "debug_contacts": "report an accessibility problem",
+    "reset_all_settings": "reset settings",
+    "image_without_alt": "image without text",
+    "contrast_block": {
+      "header": "color contrast",
+      "btn_monochrome": "uncolored<br>display",
+      "btn_bright": "bright<br>contrast",
+      "btn_invert": "invert<br>colors"
+    },
+    "text_block": {
+      "header": "text size",
+      "btn_font_up": "increase<br>text",
+      "btn_font_down": "decrease<br>text",
+      "btn_font_readable": "readable<br>text"
+    },
+    "content_block": {
+      "header": "highlighting content",
+      "btn_underline_links": "underline<br>links",
+      "btn_underline_headers": "underline<br>headers",
+      "btn_images_titles": "images<br>titles"
+    },
+    "zoom_block": {
+      "header": "zoom in",
+      "btn_cursor_white": "big white<br>cursor",
+      "btn_cursor_black": "big black<br>cursor",
+      "btn_zoom_in": "zoom<br>screen"
+    }
+  },
   "fr_FR": {
     "btn_open": "menu d'accessibilité",
     "btn_close": "fermer",

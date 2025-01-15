@@ -18,7 +18,7 @@ const rimraf = require("gulp-rimraf");
 function minifyHtml(cb) {
   src("src/**/*.html")
     .pipe(htmlmin({ collapseWhitespace: true }))
-    .pipe(rename({ suffix: ".min", prefix: "" }))
+    // .pipe(rename({ suffix: ".min", prefix: "" }))
     .pipe(dest("dist"));
   cb();
 }
@@ -83,12 +83,14 @@ function files(cb) {
 }
 
 function clean(cb) {
-//   src("dist/**").pipe(rimraf());
+  src("dist/**").pipe(rimraf({
+    force: true
+  }));
   cb();
 }
 
 function myWatch(cb) {
-  watch("src/**/*.scss", series(buildStyles));
+  watch("src/**/*.scss", series(buildStyles, commonJs));
   watch("src/**/*.html", series(minifyHtml, commonJs));
   watch("src/**/*.js", parallel(commonJs));
   cb();
@@ -96,4 +98,4 @@ function myWatch(cb) {
 
 exports.build = series(minifyHtml, buildStyles, commonJs, files);
 exports.clean = series(clean);
-exports.default = parallel(myWatch, browser);
+exports.default = parallel(exports.build, myWatch, browser);

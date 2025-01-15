@@ -67,5 +67,6 @@ That's all
 3. cd [installed repo folder]
 4. Write in terminal - "npm install"
 5. Write in terminal - "gulp" to run app
-	<li>Now you can change it.</li>
-</ol>
+
+Now you can change it.
+
